@@ -1,98 +1,32 @@
-### **What We Are Doing Here:**
+Simplified Bitcoin-like System
+We are building a simplified Bitcoin-like system. In this system, we have miners who solve puzzles to validate transactions and add new blocks to the blockchain. The blockchain is a chain of blocks that hold transaction data. Once a block is added, it cannot be changed, ensuring the integrity of the system.
 
-We are building a simplified **Bitcoin-like system**. Bitcoin works on a peer-to-peer decentralized network where **miners** solve cryptographic puzzles to validate transactions and add new blocks to the blockchain. The blockchain itself is a chain of blocks that hold transaction data, and it's immutable, meaning it can't be altered once written. Our system mimics this behavior with a few key components:
+Key Components:
 
-#### 1. **Central WebSocket Server**
-- **Purpose**: Acts as a communication hub where all miners can connect and exchange blocks and transactions.
-- **Key Function**: Receives messages (blocks/transactions) from miners and broadcasts them to other miners in real time.
 
-#### 2. **Miner Server**
-- **Purpose**: A miner is a server responsible for:
-  1. **Creating new blocks**: Collecting transactions, solving a cryptographic puzzle (proof-of-work), and then creating a valid block.
-  2. **Verifying blocks**: Each miner ensures that a block it receives follows the blockchain rules (correct proof-of-work, valid signature, correct balances, etc.).
-  3. **Adding blocks**: Once a block is validated, it's added to the blockchain, and the miner broadcasts the block to the network.
-  4. **Rejecting invalid blocks**: If the block is not valid, the miner discards it to maintain the integrity of the blockchain.
-  5. **Catching up**: When a miner starts, it requests the current blockchain to ensure it's up to date.
+Central WebSocket Server
 
-#### 3. **Frontend (Wallet & Transactions)**
-- **Purpose**: The frontend lets users create a wallet (public-private key pair), sign transactions (approve and send funds), and submit transactions to the miners. The miners then validate the transactions and include them in blocks.
-  - **Wallet**: Generates a public key (wallet address) and private key (to sign transactions).
-  - **Transaction**: A transfer of "coins" (BTC-like tokens) from one address to another. This needs to be cryptographically signed by the sender's private key.
+Purpose: Acts as a communication hub where all miners can connect and exchange blocks and transactions.
+Function: The server receives messages (blocks or transactions) from miners and broadcasts them to other miners in real time.
 
----
 
-### **How It Works:**
 
-#### 1. **Central WebSocket Server:**
-   - This server **runs on a central machine** and waits for connections from miner servers.
-   - When a miner connects to this server, it can **broadcast new blocks** or transactions to other miners.
-   - This central server helps to keep miners in sync by relaying information between them in real time.
-   - **Example**: When a new block is created by a miner, it's sent to the central server, which then broadcasts the block to all other miners to maintain consensus.
+Miner Server
 
-#### 2. **Miner Servers:**
+Purpose: A miner is a server that:
+Creates new blocks: Collects transactions, solves a cryptographic puzzle (proof-of-work), and creates a valid block.
+Verifies blocks: Checks if the blocks received from other miners follow the blockchain rules (correct proof-of-work, valid signature, correct balances, etc.).
+Adds blocks: Once a block is verified, it is added to the blockchain, and the miner broadcasts the block to the network.
+Rejects invalid blocks: If a block is not valid, the miner discards it to keep the blockchain intact.
+Catches up: When a miner starts, it asks the central server for the current blockchain to ensure it's up-to-date.
 
-Miners are responsible for three primary tasks:
 
-   1. **Block Creation (Proof-of-Work):**
-      - Miners gather transactions and attempt to create a block.
-      - The **proof-of-work** mechanism is used to make sure that creating a block requires computational effort. Miners have to find a hash for the block that starts with a certain number of zeros (the "difficulty").
-      - This hash is found by **brute-forcing the nonce** (a number) until the resulting block hash has the desired number of leading zeros.
-      - Once the miner finds this valid hash, it has created a new block, which is then **broadcast** to the other miners.
-   
-   2. **Block Validation:**
-      - Miners listen to blocks from other miners via the central WebSocket server.
-      - When a miner receives a block, it **validates** it by checking:
-        1. The block's **index** (it should follow the last block on the chain).
-        2. The block’s **previous hash** (it should match the last block's hash).
-        3. The block's **proof-of-work** (the hash should meet the difficulty level).
-      - If the block passes all checks, it's added to the blockchain. If not, it’s discarded.
 
-   3. **Syncing Blockchain (Catch-Up Mechanism):**
-      - When a miner starts, it needs to **synchronize** itself with the current state of the blockchain. It does this by asking the central server for the latest chain and making sure it is on the same page as other miners.
-      - This ensures that the miner has the complete and correct version of the blockchain.
+Frontend (Wallet & Transactions)
 
-#### 3. **Frontend - Wallet & Transactions:**
-
-The frontend allows users to interact with the system as **wallet owners**. Here's the step-by-step process:
-
-   1. **Creating a Wallet**:
-      - The user creates a wallet, which consists of a **public key** (the wallet address) and a **private key**.
-      - The public key is used to receive transactions, and the private key is used to **sign** transactions (prove ownership and authorize sending of funds).
-
-   2. **Signing Transactions**:
-      - The user generates a transaction (sending a certain amount of funds to another address).
-      - The transaction is signed using the user’s private key. This ensures that only the wallet owner can authorize sending funds from that address.
-
-   3. **Sending Transactions**:
-      - The signed transaction is sent to the miner servers.
-      - The miner verifies the transaction's validity (checking the signature, ensuring sufficient balance, etc.).
-      - If valid, the transaction is included in the next block that the miner creates.
-
----
-
-### **Step-by-Step Process Flow:**
-
-1. **User Creates a Wallet**: The user uses the frontend to generate a public-private key pair, representing their Bitcoin-like wallet.
-
-2. **User Signs and Sends a Transaction**: The user decides to send some "coins" (BTC-like tokens) to another user. The transaction is signed with the user's private key and sent to a miner.
-
-3. **Miner Receives Transaction**: The miner adds the transaction to a pool of pending transactions and begins the proof-of-work process to create a new block.
-
-4. **Miner Creates a Block**: Once the miner solves the cryptographic puzzle (proof-of-work), it creates a new block, which contains the transactions, and broadcasts the block to the central server.
-
-5. **Central Server Broadcasts Block**: The central WebSocket server relays this block to all connected miners.
-
-6. **Miners Validate the Block**: Each miner checks whether the received block is valid (proof-of-work, chain consistency, etc.). If valid, they add it to their local copy of the blockchain.
-
-7. **System Syncing**: When a miner starts, it requests the current blockchain from other miners to ensure it's up to date.
-
----
-
-### **Why Each Component Is Important:**
-
-- **Central WebSocket Server**: Keeps all miners in sync by broadcasting new blocks and transactions. This is crucial to ensure consensus.
-- **Miners**: Responsible for block creation and ensuring the security of the system via proof-of-work. They are the backbone of the system, validating transactions and blocks.
-- **Proof-of-Work**: Ensures that block creation is computationally expensive, making it difficult to create false blocks, which helps secure the network.
-- **Wallet and Transactions**: Allow users to interact with the blockchain, send funds, and use their private keys to prove ownership.
-  
-This setup mimics the foundational structure of Bitcoin, ensuring decentralized consensus, transaction security, and blockchain integrity.
+Purpose: The frontend allows users to:
+Create a wallet (a public-private key pair).
+Sign transactions (approve and send funds).
+Submit transactions to miners for validation and inclusion in blocks.
+Wallet: The wallet generates a public key (for the wallet address) and a private key (for signing transactions).
+Transaction: A transaction is a transfer of "coins" (BTC-like tokens) from one address to another. The transaction needs to be cryptographically signed by the sender’s private key.
